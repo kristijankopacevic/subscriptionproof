@@ -11,6 +11,8 @@
   `SUBPROOF_SECRET` nowhere in the repo, `dist/` never pushed.
 - Open: Gumroad listing (€2.99) + first test purchase; see `GUMROAD_SETUP.md`.
   Pages repo step of `PRODUCTION_CHECKLIST.md` §4 is done; §5 is owner-bound.
+- Verified live: Pages status `built`, demo + `sitemap.xml` HTTP 200, title check
+  pass, 7 repo topics set.
 
 ---
 
