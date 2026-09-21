@@ -1,10 +1,16 @@
 # SubscriptionProof — release scope
 
-**Date:** 2026-09-21 · **Version:** 0.1.0 · **Decision: BUILD COMPLETE, NOT PUBLISHED**
+**Date:** 2026-09-21 · **Version:** 0.1.0 · **Decision: PUBLISHED (demo live; Pro sale pending Gumroad listing)**
 
-Build is verified (31 tests + packaging self-check green). Publishing needs the
-owner-bound steps in `PRODUCTION_CHECKLIST.md` (GitHub Pages repo) and
-`GUMROAD_SETUP.md` (Gumroad listing). Nothing is live and no money can flow yet.
+## 0.1.0 — 2026-09-21 — demo published
+
+- Repo: https://github.com/kristijankopacevic/subscriptionproof (public, `main`)
+- Demo: https://kristijankopacevic.github.io/subscriptionproof/
+- Gates at publish: `npm test` 31/31, `verify:packaging` 7/7, `node --check` clean,
+  privacy grep clean (only the Gumroad placeholder anchor leaves the page),
+  `SUBPROOF_SECRET` nowhere in the repo, `dist/` never pushed.
+- Open: Gumroad listing (€2.99) + first test purchase; see `GUMROAD_SETUP.md`.
+  Pages repo step of `PRODUCTION_CHECKLIST.md` §4 is done; §5 is owner-bound.
 
 ---
 
