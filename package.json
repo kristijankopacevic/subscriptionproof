@@ -1,0 +1,12 @@
+{
+  "name": "subscriptionproof",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser-only bank-statement subscription finder. Your CSV never leaves the browser. Free capped demo + €2.99 Pro via Gumroad.",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "verify:packaging": "node scripts/verify-packaging.mjs",
+    "package:pro": "node scripts/package-pro.mjs"
+  }
+}

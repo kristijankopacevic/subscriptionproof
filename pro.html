@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SubscriptionProof Pro — unlimited subscription audit</title>
+<meta name="description" content="SubscriptionProof Pro: unlimited rows, every merchant, CSV export. Runs entirely in your browser. Unlocked with your Gumroad receipt key.">
+<meta name="robots" content="noindex">
+<style>
+  :root{--ink:#1d1a2e;--muted:#5f5a76;--line:#e2def0;--bg:#fbfafd;--card:#fff;
+        --accent:#5b4b8a;--soft:#efecf8;--warn:#8a6320;--warnsoft:#fdf6e7;--up:#1f6f4f;--upsoft:#eaf3ee}
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg)}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+  header{padding:56px 0 26px}
+  .badge{display:inline-block;background:var(--soft);color:var(--accent);font-size:12.5px;
+         font-weight:650;padding:5px 11px;border-radius:999px;letter-spacing:.01em}
+  h1{font-size:clamp(28px,4.6vw,40px);line-height:1.14;margin:18px 0 12px;letter-spacing:-.021em}
+  .lede{font-size:18px;color:var(--muted);max-width:62ch;margin:0}
+  h2{font-size:19px;margin:38px 0 10px;letter-spacing:-.01em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:16px 0}
+  #drop{border:2px dashed var(--line);border-radius:12px;padding:38px 20px;text-align:center;
+        background:var(--card);cursor:pointer;transition:.15s}
+  #drop:hover,#drop.over{border-color:var(--accent);background:var(--soft)}
+  #drop b{display:block;font-size:17px;margin-bottom:5px}
+  #drop span{color:var(--muted);font-size:14px}
+  .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}
+  button{font:inherit;padding:8px 15px;border-radius:7px;border:1px solid var(--accent);
+         background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:var(--card);color:var(--accent)}
+  input[type=text],input[type=email]{font:inherit;padding:8px 10px;border:1px solid var(--line);
+         border-radius:6px;background:var(--card);color:var(--ink);min-width:min(320px,100%)}
+  label{font-size:14px;color:var(--muted)}
+  .stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:14px}
+  .stat b{display:block;font-size:24px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat span{font-size:12.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ex{font-size:12px;color:var(--muted)}
+  .tag{display:inline-block;font-size:11px;font-weight:650;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .t-sub{background:var(--soft);color:var(--accent)}
+  .t-irr{background:#eee;color:var(--muted)}
+  .t-var,.t-inc{background:var(--warnsoft);color:var(--warn)}
+  .t-new,.t-dup{background:var(--upsoft);color:var(--up)}
+  .unknown{color:var(--warn);font-style:italic}
+  .note{background:var(--soft);border-radius:9px;padding:15px 17px;font-size:14.5px;margin:14px 0}
+  .warn{background:var(--warnsoft);border:1px solid #f0e2c0;border-radius:9px;padding:15px 17px;font-size:14.5px}
+  .gate{border:2px solid var(--accent);border-radius:12px;padding:22px;margin:24px 0;background:var(--card)}
+  ul{padding-left:20px;margin:0 0 12px} li{margin:5px 0}
+  footer{border-top:1px solid var(--line);margin-top:52px;padding:24px 0 56px;color:var(--muted);font-size:13.5px}
+  .scroll{overflow-x:auto}
+  .hidden{display:none}
+  @media (prefers-color-scheme:dark){
+    :root{--ink:#e9e7f4;--muted:#9d99b5;--line:#2c2942;--bg:#12101c;--card:#191627;
+          --accent:#a793e8;--soft:#241f3d;--warn:#d8b46a;--warnsoft:#2a2317;--up:#6ec69b;--upsoft:#163023}
+    button{color:#12101c}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="badge">Pro · unlimited · still nothing uploaded</span>
+  <h1>SubscriptionProof Pro.</h1>
+  <p class="lede">Every row, every merchant, plus a clean CSV export for your records.
+  Unlock with the receipt key Gumroad emailed you after payment.</p>
+</header>
+
+<div class="gate" id="gate">
+  <h2 style="margin-top:0">Unlock Pro</h2>
+  <div class="row">
+    <label for="email">Gumroad email<br><input type="email" id="email" autocomplete="email" placeholder="you@example.com"></label>
+    <label for="key">Receipt key<br><input type="text" id="key" autocomplete="off" spellcheck="false" placeholder="SP29-XXXX-XXXX-XXXX"></label>
+  </div>
+  <div class="row">
+    <button id="unlock" type="button">Unlock</button>
+    <label><input type="checkbox" id="remember"> Remember on this device</label>
+    <button id="forget" class="ghost hidden" type="button">Forget this device</button>
+    <span id="gatemsg" role="status"></span>
+  </div>
+  <div class="note">The key is checked <strong>offline, inside this file</strong> — it is a
+  receipt check, not phone-home DRM, and this page makes zero network requests either
+  way. “Remember” stores only your email and key in this browser’s local storage;
+  “Forget” erases them. Your bank CSV is never stored anywhere.</div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="note">
+    <strong>Your bank data never leaves your computer.</strong> Analysis runs in your
+    browser; reloading erases everything unless you ticked “Remember”.
+  </div>
+  <div id="drop" role="button" tabindex="0" aria-label="Select a bank CSV file">
+    <b>Drop your bank CSV here, or click to choose it</b>
+    <span>Unlimited rows in Pro. European and Anglo number formats.</span>
+    <input type="file" id="file" accept=".csv,.txt" class="hidden">
+  </div>
+  <div class="row">
+    <button id="sample" class="ghost" type="button">Try with sample data</button>
+    <button id="export" class="ghost hidden" type="button">Download merchants CSV</button>
+    <span id="status" role="status"></span>
+  </div>
+
+  <section id="results" class="hidden">
+    <h2>Your subscriptions</h2>
+    <div class="stats" id="stats"></div>
+    <h2>Recurring charges <span id="shownote"></span></h2>
+    <div class="scroll"><table aria-label="Recurring charges">
+      <thead><tr><th>Merchant</th><th>Cadence</th><th>Charges</th><th>Typical</th><th>Per month</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table></div>
+    <h2>Findings</h2>
+    <ul id="findings"></ul>
+    <h2>Rows that needed attention</h2>
+    <ul id="issues"></ul>
+  </section>
+</div>
+
+<footer>
+  SubscriptionProof Pro is independent and not affiliated with any bank or with
+  Gumroad. It gives no financial advice; it organises and totals the export your
+  bank gave you. One €2.99 payment, yours to keep; the key works offline forever.
+</footer>
+</div>
+
+<script type="text/plain" id="sample-csv">
+Booking date;Description;Amount
+2026-05-12;NETFLIX.COM 866-579-7172;-15,99 €
+2026-06-12;NETFLIX.COM 866-579-7172;-15,99 €
+2026-07-13;NETFLIX.COM 866-579-7172;-16,99 €
+2026-08-12;NETFLIX.COM 866-579-7172;-16,99 €
+2026-05-20;Spotify SE;-10,99 €
+2026-06-20;Spotify SE;-10,99 €
+2026-07-21;Spotify SE;-10,99 €
+2026-08-20;Spotify SE;-10,99 €
+2026-05-15;AMAZON PRIME;-4,99 €
+2026-06-15;AMAZON PRIME;-4,99 €
+2026-07-15;AMAZON PRIME;-4,99 €
+2026-05-16;AMAZON MUSIC;-9,99 €
+2026-06-16;AMAZON MUSIC;-9,99 €
+2026-07-16;AMAZON MUSIC;-9,99 €
+2026-06-28;CLOUD STORAGE 2.99;-2,99 €
+2026-07-28;CLOUD STORAGE 2.99;-2,99 €
+2026-08-28;CLOUD STORAGE 2.99;-2,99 €
+2026-08-07;WEEKLY APP;-1,99 €
+2026-08-14;WEEKLY APP;-1,99 €
+2026-08-21;WEEKLY APP;-1,99 €
+2026-03-02;FITNESS CLUB ANNUAL;-120,00 €
+2026-08-20;FITNESS CLUB ANNUAL;-120,00 €
+2026-08-01;Salary ACME;2500,00 €
+2026-08-15;MYSTERY CHARGE;???
+</script>
+
+<script type="module">
+import { analyzeSubscriptions, formatCents } from './src/subscriptions.js';
+import { merchantRowHtml, findingHtml, issueHtml, escapeHtml, merchantsCsv } from './src/render.js';
+import { verifyKey } from './src/license.js';
+
+// Injected at packaging time by scripts/package-pro.mjs from the
+// seller's SUBPROOF_SECRET. Never committed; dist/ is git-ignored.
+const VERIFIER_SECRET = /*__SUBPROOF_SECRET__*/ "";
+
+const gate = document.getElementById('gate');
+const app = document.getElementById('app');
+const gatemsg = document.getElementById('gatemsg');
+let lastResult = null;
+let lastName = '';
+
+function tryUnlock(email, key, silent) {
+  if (!VERIFIER_SECRET) {
+    gatemsg.textContent = 'This copy was not packaged with a receipt secret. Ask the seller for a packaged build.';
+    return false;
+  }
+  const v = verifyKey(key, email, VERIFIER_SECRET);
+  if (v.ok) {
+    gate.classList.add('hidden');
+    app.classList.remove('hidden');
+    document.getElementById('forget').classList.remove('hidden');
+    if (!silent) gatemsg.textContent = '';
+    return true;
+  }
+  gatemsg.textContent = 'That key does not match that email. Check both and retry.';
+  return false;
+}
+
+document.getElementById('unlock').addEventListener('click', () => {
+  const email = document.getElementById('email').value;
+  const key = document.getElementById('key').value;
+  if (tryUnlock(email, key, false) && document.getElementById('remember').checked) {
+    try { localStorage.setItem('subproof-pro', JSON.stringify({ email, key })); } catch {}
+  }
+});
+document.getElementById('forget').addEventListener('click', () => {
+  try { localStorage.removeItem('subproof-pro'); } catch {}
+  document.getElementById('forget').classList.add('hidden');
+  document.getElementById('remember').checked = false;
+  gatemsg.textContent = 'Forgotten on this device. Your key still works — re-enter it any time.';
+  gate.classList.remove('hidden');
+  app.classList.add('hidden');
+});
+
+// Auto-unlock only from an explicit remembered receipt.
+try {
+  const saved = JSON.parse(localStorage.getItem('subproof-pro') || 'null');
+  if (saved && saved.email && saved.key) {
+    document.getElementById('email').value = saved.email;
+    document.getElementById('key').value = saved.key;
+    document.getElementById('remember').checked = true;
+    tryUnlock(saved.email, saved.key, true);
+  }
+} catch {}
+
+const drop = document.getElementById('drop');
+const file = document.getElementById('file');
+const status = document.getElementById('status');
+drop.addEventListener('click', () => file.click());
+drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') file.click(); });
+drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', (e) => {
+  e.preventDefault();
+  drop.classList.remove('over');
+  if (e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);
+});
+file.addEventListener('change', () => { if (file.files.length) readFile(file.files[0]); });
+document.getElementById('sample').addEventListener('click', () => {
+  run(document.getElementById('sample-csv').textContent.trim(), 'sample (demo data)');
+});
+document.getElementById('export').addEventListener('click', () => {
+  if (!lastResult) return;
+  const blob = new Blob([merchantsCsv(lastResult, lastName)], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'subscriptionproof-merchants.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+});
+
+function readFile(f) {
+  const reader = new FileReader();
+  reader.onload = () => run(String(reader.result), f.name);
+  reader.onerror = () => { status.textContent = 'Could not read that file.'; };
+  reader.readAsText(f);
+}
+
+function run(text, name) {
+  status.textContent = 'Analysing…';
+  const r = analyzeSubscriptions(text); // Pro: no row cap.
+  lastResult = r;
+  lastName = name;
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('export').classList.remove('hidden');
+  const cur = r.burnCurrency && r.burnCurrency !== 'MULTI' ? r.burnCurrency : 'EUR';
+  document.getElementById('stats').innerHTML =
+    stat(formatCents(r.monthlyBurnCents, r.burnCurrency === 'MULTI' ? null : r.burnCurrency), 'monthly burn') +
+    stat(r.yearlyProjectionCents == null ? 'unknown' : formatCents(r.yearlyProjectionCents, r.burnCurrency), 'projected yearly') +
+    stat(String(r.stats.recurringCount), 'recurring merchants') +
+    stat(String(r.stats.rowsAnalyzed), 'rows read (uncapped)');
+  document.getElementById('shownote').textContent = `(${r.recurring.length} shown, all of them)`;
+  document.getElementById('tbody').innerHTML =
+    r.recurring.map((m) => merchantRowHtml(m, cur)).join('') ||
+    '<tr><td colspan="5">No repeating charges found.</td></tr>';
+  document.getElementById('findings').innerHTML =
+    r.findings.map((f) => findingHtml(f, cur)).join('') || '<li>Nothing flagged.</li>';
+  document.getElementById('issues').innerHTML =
+    r.issues.map(issueHtml).join('') || '<li>Every row parsed cleanly.</li>';
+  status.textContent = `Done — ${escapeHtml(name)}`;
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function stat(value, label) {
+  return `<div class="stat"><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>`;
+}
+</script>
+</body>
+</html>

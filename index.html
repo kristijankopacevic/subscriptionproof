@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SubscriptionProof — find every subscription eating your bank balance</title>
+<meta name="description" content="Drop in your bank CSV export and see every recurring subscription, your true monthly burn, price increases and possible duplicates. Runs entirely in your browser. Free demo.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SubscriptionProof — find every subscription eating your bank balance">
+<meta property="og:description" content="Bank CSV in, subscription list out. Monthly burn, price increases, possible duplicates. Your file never leaves your browser.">
+<!-- TODO(Batch C): set og:url + canonical to the live Pages address before publish. -->
+<style>
+  :root{--ink:#1d1a2e;--muted:#5f5a76;--line:#e2def0;--bg:#fbfafd;--card:#fff;
+        --accent:#5b4b8a;--soft:#efecf8;--warn:#8a6320;--warnsoft:#fdf6e7;--up:#1f6f4f;--upsoft:#eaf3ee}
+  *{box-sizing:border-box}
+  body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);background:var(--bg)}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+  header{padding:56px 0 26px}
+  .badge{display:inline-block;background:var(--soft);color:var(--accent);font-size:12.5px;
+         font-weight:650;padding:5px 11px;border-radius:999px;letter-spacing:.01em}
+  h1{font-size:clamp(28px,4.6vw,40px);line-height:1.14;margin:18px 0 12px;letter-spacing:-.021em}
+  .lede{font-size:18px;color:var(--muted);max-width:62ch;margin:0}
+  h2{font-size:19px;margin:38px 0 10px;letter-spacing:-.01em}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin:16px 0}
+  #drop{border:2px dashed var(--line);border-radius:12px;padding:38px 20px;text-align:center;
+        background:var(--card);cursor:pointer;transition:.15s}
+  #drop:hover,#drop.over{border-color:var(--accent);background:var(--soft)}
+  #drop b{display:block;font-size:17px;margin-bottom:5px}
+  #drop span{color:var(--muted);font-size:14px}
+  .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}
+  button{font:inherit;padding:8px 15px;border-radius:7px;border:1px solid var(--accent);
+         background:var(--accent);color:#fff;cursor:pointer}
+  button.ghost{background:var(--card);color:var(--accent)}
+  .stats{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:14px}
+  .stat b{display:block;font-size:24px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat span{font-size:12.5px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ex{font-size:12px;color:var(--muted)}
+  .tag{display:inline-block;font-size:11px;font-weight:650;padding:2px 7px;border-radius:5px;white-space:nowrap}
+  .t-sub{background:var(--soft);color:var(--accent)}
+  .t-irr{background:#eee;color:var(--muted)}
+  .t-var,.t-inc{background:var(--warnsoft);color:var(--warn)}
+  .t-new,.t-dup{background:var(--upsoft);color:var(--up)}
+  .unknown{color:var(--warn);font-style:italic}
+  .note{background:var(--soft);border-radius:9px;padding:15px 17px;font-size:14.5px;margin:14px 0}
+  .warn{background:var(--warnsoft);border:1px solid #f0e2c0;border-radius:9px;padding:15px 17px;font-size:14.5px}
+  .upsell{border:2px solid var(--accent);border-radius:12px;padding:22px;margin:24px 0;background:var(--card)}
+  .upsell .price{font-size:26px;font-weight:700;letter-spacing:-.02em}
+  ul{padding-left:20px;margin:0 0 12px} li{margin:5px 0}
+  footer{border-top:1px solid var(--line);margin-top:52px;padding:24px 0 56px;color:var(--muted);font-size:13.5px}
+  .scroll{overflow-x:auto}
+  .hidden{display:none}
+  @media (prefers-color-scheme:dark){
+    :root{--ink:#e9e7f4;--muted:#9d99b5;--line:#2c2942;--bg:#12101c;--card:#191627;
+          --accent:#a793e8;--soft:#241f3d;--warn:#d8b46a;--warnsoft:#2a2317;--up:#6ec69b;--upsoft:#163023}
+    button{color:#12101c}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="badge">Free demo · capped · nothing is uploaded</span>
+  <h1>Find every subscription eating your bank balance.</h1>
+  <p class="lede">Drop in the CSV your bank already exports. SubscriptionProof finds the
+  charges that repeat every week, month, quarter or year, adds up your true monthly
+  burn, and flags price increases and possible duplicates.</p>
+</header>
+
+<div class="note">
+  <strong>Your bank data never leaves your computer.</strong> This page does the whole
+  analysis in your browser. After it loads, it makes zero network requests — verify it
+  in developer tools. Reloading erases everything; nothing is stored anywhere.
+</div>
+
+<div id="drop" role="button" tabindex="0" aria-label="Select a bank CSV file">
+  <b>Drop your bank CSV here, or click to choose it</b>
+  <span>Date + description + amount columns. European and Anglo number formats. Free demo reads the first 200 rows.</span>
+  <input type="file" id="file" accept=".csv,.txt" class="hidden">
+</div>
+<div class="row">
+  <button id="sample" class="ghost" type="button">Try with sample data</button>
+  <span id="status" role="status"></span>
+</div>
+
+<section id="results" class="hidden">
+  <h2>Your subscriptions</h2>
+  <div id="capwarn"></div>
+  <div class="stats" id="stats"></div>
+  <h2>Recurring charges <span id="shownote"></span></h2>
+  <div class="scroll"><table aria-label="Recurring charges">
+    <thead><tr><th>Merchant</th><th>Cadence</th><th>Charges</th><th>Typical</th><th>Per month</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table></div>
+  <h2>Findings</h2>
+  <ul id="findings"></ul>
+  <h2>Rows that needed attention</h2>
+  <ul id="issues"></ul>
+
+  <div class="upsell">
+    <div class="price">Unlock everything — €2.99 one-off</div>
+    <p>This free demo reads the first 200 rows and shows the top 5 subscriptions, with no
+    export. <strong>SubscriptionProof Pro</strong> analyses unlimited rows, shows every
+    merchant, and exports a clean CSV for your records. Same file, same privacy — it
+    still runs entirely offline in your browser.</p>
+    <!-- TODO(Batch C): replace href with the live Gumroad permalink before publish. -->
+    <p><a id="gumroad" href="https://gumroad.com/l/subscriptionproof-pro"><button type="button">Get Pro on Gumroad</button></a></p>
+  </div>
+</section>
+
+<h2>Honest limits</h2>
+<ul>
+  <li>Three or more charges on a stable cadence count as a subscription. Two similar
+  charges are reported as irregular — never upgraded.</li>
+  <li>An unreadable amount stays <span class="unknown">unknown</span> and out of the
+  totals. It is never treated as zero.</li>
+  <li>Charges in different currencies are totalled per currency only. No combined
+  figure is ever claimed.</li>
+  <li>This page cannot know which subscriptions you still use. It shows what repeats
+  and what changed — the cancellation decision stays yours.</li>
+</ul>
+
+<footer>
+  SubscriptionProof is independent and not affiliated with any bank. It gives no
+  financial advice; it organises and totals the export your bank gave you.<br>
+  © 2026. The demo page is free. Pro is a €2.99 one-off file delivered after payment.
+</footer>
+</div>
+
+<script type="text/plain" id="sample-csv">
+Booking date;Description;Amount
+2026-05-12;NETFLIX.COM 866-579-7172;-15,99 €
+2026-06-12;NETFLIX.COM 866-579-7172;-15,99 €
+2026-07-13;NETFLIX.COM 866-579-7172;-16,99 €
+2026-08-12;NETFLIX.COM 866-579-7172;-16,99 €
+2026-05-20;Spotify SE;-10,99 €
+2026-06-20;Spotify SE;-10,99 €
+2026-07-21;Spotify SE;-10,99 €
+2026-08-20;Spotify SE;-10,99 €
+2026-05-15;AMAZON PRIME;-4,99 €
+2026-06-15;AMAZON PRIME;-4,99 €
+2026-07-15;AMAZON PRIME;-4,99 €
+2026-05-16;AMAZON MUSIC;-9,99 €
+2026-06-16;AMAZON MUSIC;-9,99 €
+2026-07-16;AMAZON MUSIC;-9,99 €
+2026-06-28;CLOUD STORAGE 2.99;-2,99 €
+2026-07-28;CLOUD STORAGE 2.99;-2,99 €
+2026-08-28;CLOUD STORAGE 2.99;-2,99 €
+2026-08-07;WEEKLY APP;-1,99 €
+2026-08-14;WEEKLY APP;-1,99 €
+2026-08-21;WEEKLY APP;-1,99 €
+2026-03-02;FITNESS CLUB ANNUAL;-120,00 €
+2026-08-20;FITNESS CLUB ANNUAL;-120,00 €
+2026-08-01;Salary ACME;2500,00 €
+2026-08-15;MYSTERY CHARGE;???
+</script>
+
+<script type="module">
+import { analyzeSubscriptions, formatCents, FREE_MAX_ROWS, FREE_MAX_MERCHANTS_SHOWN } from './src/subscriptions.js';
+import { merchantRowHtml, findingHtml, issueHtml, escapeHtml } from './src/render.js';
+
+const drop = document.getElementById('drop');
+const file = document.getElementById('file');
+const status = document.getElementById('status');
+drop.addEventListener('click', () => file.click());
+drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') file.click(); });
+drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', (e) => {
+  e.preventDefault();
+  drop.classList.remove('over');
+  if (e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);
+});
+file.addEventListener('change', () => { if (file.files.length) readFile(file.files[0]); });
+document.getElementById('sample').addEventListener('click', () => {
+  run(document.getElementById('sample-csv').textContent.trim(), 'sample (demo data)');
+});
+
+function readFile(f) {
+  const reader = new FileReader();
+  reader.onload = () => run(String(reader.result), f.name);
+  reader.onerror = () => { status.textContent = 'Could not read that file.'; };
+  reader.readAsText(f);
+}
+
+function run(text, name) {
+  status.textContent = 'Analysing…';
+  const r = analyzeSubscriptions(text, { maxRows: FREE_MAX_ROWS });
+  document.getElementById('results').classList.remove('hidden');
+  const cur = r.burnCurrency && r.burnCurrency !== 'MULTI' ? r.burnCurrency : 'EUR';
+  document.getElementById('stats').innerHTML =
+    stat(formatCents(r.monthlyBurnCents, r.burnCurrency === 'MULTI' ? null : r.burnCurrency), 'monthly burn' + (r.burnCurrency === 'MULTI' ? ' (multi-currency: see table)' : '')) +
+    stat(r.yearlyProjectionCents == null ? 'unknown' : formatCents(r.yearlyProjectionCents, r.burnCurrency), 'projected yearly') +
+    stat(String(r.stats.recurringCount), 'recurring merchants') +
+    stat(String(r.stats.rowsAnalyzed) + (r.capped ? '+' : ''), 'rows read' + (r.capped ? ' (demo cap)' : ''));
+  document.getElementById('capwarn').innerHTML = r.capped
+    ? `<div class="warn"><strong>Demo cap:</strong> this file holds ${r.stats.rowsSeen} rows; the demo read the first ${FREE_MAX_ROWS}. Totals below cover those rows only. Pro reads everything.</div>`
+    : '';
+  document.getElementById('shownote').textContent = `(top ${Math.min(FREE_MAX_MERCHANTS_SHOWN, r.recurring.length)} of ${r.recurring.length})`;
+  document.getElementById('tbody').innerHTML =
+    r.recurring.slice(0, FREE_MAX_MERCHANTS_SHOWN).map((m) => merchantRowHtml(m, cur)).join('') ||
+    '<tr><td colspan="5">No repeating charges found in the rows read.</td></tr>';
+  document.getElementById('findings').innerHTML =
+    r.findings.map((f) => findingHtml(f, cur)).join('') || '<li>Nothing flagged.</li>';
+  document.getElementById('issues').innerHTML =
+    r.issues.map(issueHtml).join('') || '<li>Every row parsed cleanly.</li>';
+  status.textContent = `Done — ${escapeHtml(name)}`;
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function stat(value, label) {
+  return `<div class="stat"><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>`;
+}
+</script>
+</body>
+</html>
